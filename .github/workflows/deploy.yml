@@ -39,12 +39,19 @@ jobs:
           docker push $IMAGE_NAME:${{ github.sha }}
           docker push $IMAGE_NAME:latest
 
+      - name: Prepare SSH key
+        env:
+          SSH_KEY_B64: ${{ secrets.EC2_SSH_KEY_B64 }}
+        run: |
+          printf '%s' "$SSH_KEY_B64" | base64 --decode > "$RUNNER_TEMP/ec2-key.pem"
+          chmod 600 "$RUNNER_TEMP/ec2-key.pem"
+
       - name: Deploy to Kubernetes
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key_path: ${{ runner.temp }}/ec2-key.pem
           port: 22
           script: |
             sudo kubectl set image deployment/backend \

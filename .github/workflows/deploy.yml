@@ -14,11 +14,9 @@ env:
 
 jobs:
   build-and-deploy:
-
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -49,7 +47,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             sudo kubectl set image deployment/backend \
-              backend=backend=ghcr.io/atharva116hub/k8s-devops-challenge:${{ github.sha }} \
+              backend=ghcr.io/atharva116hub/k8s-devops-challenge:${{ github.sha }} \
               -n devops-demo
 
             sudo kubectl rollout status deployment/backend \
@@ -57,3 +55,4 @@ jobs:
               --timeout=120s
 
             sudo kubectl get pods -n devops-demo
+            sudo kubectl get svc -n devops-demo
